@@ -22,18 +22,6 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
-    <!-- Copied from NoTankYou -->
-    <Target Name="GetGitHash" BeforeTargets="GetAssemblyVersion" Returns="InformationalVersion">
-        <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" StandardOutputImportance="low">
-            <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
-        </Exec>
-
-        <PropertyGroup>
-            <InformationalVersion>$(GitCommitHash)</InformationalVersion>
-        </PropertyGroup>
-    </Target>
-
-
     <PropertyGroup>
         <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
     </PropertyGroup>
