@@ -1,4 +1,4 @@
-﻿using Tf2CriticalHitsPlugin.Game;
+using Tf2CriticalHitsPlugin.Game;
 
 namespace Tf2CriticalHitsPlugin.Common;
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Dalamud.Logging;
 using Dalamud.Memory;
@@ -243,11 +243,10 @@ public static unsafe class GameConfig {
     }
 
     static GameConfig() {
-        System = new GameConfigSection(&Framework.Instance()->SystemConfig.CommonSystemConfig.ConfigBase, new []{ "PadMode" });
-        UiConfig = new GameConfigSection(&Framework.Instance()->SystemConfig.CommonSystemConfig.UiConfig);
-        UiControl = new GameConfigSection(&Framework.Instance()->SystemConfig.CommonSystemConfig.UiControlConfig);
+        System = new GameConfigSection(&Framework.Instance()->SystemConfig.SystemConfigBase.ConfigBase, new[] { "PadMode" });
+        UiConfig = new GameConfigSection(&Framework.Instance()->SystemConfig.SystemConfigBase.UiConfig);
+        UiControl = new GameConfigSection(&Framework.Instance()->SystemConfig.SystemConfigBase.UiControlConfig);
     }
-
 
     public static GameConfigSection System;
     public static GameConfigSection UiConfig;
