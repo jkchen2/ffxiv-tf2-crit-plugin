@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -18,7 +18,7 @@ public sealed class CountdownHook : IDisposable
 {
     private readonly ICondition condition;
 
-    [Signature("48 89 5C 24 ?? 57 48 83 EC 40 8B 41", DetourName = nameof(CountdownTimerFunc))]
+    [Signature("40 53 48 83 EC 40 80 79 38 00", DetourName = nameof(CountdownTimerFunc))]
     private readonly Hook<CountdownTimerDelegate>? countdownTimerHook = null;
 
     private readonly State state;
@@ -79,7 +79,6 @@ public sealed class CountdownHook : IDisposable
             countDownStallTicks = 0;
             countDownRunning = true;
         }
-
         if (countDownStallTicks > 50)
         {
             if (countDownRunning)

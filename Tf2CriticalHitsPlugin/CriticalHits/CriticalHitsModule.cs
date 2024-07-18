@@ -7,6 +7,7 @@ using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Hooking;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;
@@ -193,7 +194,7 @@ public unsafe class CriticalHitsModule: IDisposable
                         }
                         else
                         {
-                            GameSoundPlayer?.Play(module.GameSound.Value);
+                            UIModule.PlaySound((uint)module.GameSound.Value);
                         }
                     }
                     break;
