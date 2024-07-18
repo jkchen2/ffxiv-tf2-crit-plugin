@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -6,6 +6,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Logging;
 using Dalamud.Utility;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using ImGuiNET;
 using KamiLib;
 using KamiLib.Configuration;
@@ -85,7 +86,7 @@ public class CritOption : ISelectable, IDrawable
                .AddConfigCombo(SoundsExtensions.Values(), config.GameSound, s => s.ToName(), width: 7.5F * ImGui.GetFontSize())
                .SameLine()
                .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play,
-                              () => CriticalHitsModule.GameSoundPlayer?.Play(config.GameSound.Value))
+                              () => UIModule.PlaySound((uint)config.GameSound.Value))
                .SameLine()
                .AddString("(Volume is controlled by the game's settings)")
                .AddIndent(-2)
