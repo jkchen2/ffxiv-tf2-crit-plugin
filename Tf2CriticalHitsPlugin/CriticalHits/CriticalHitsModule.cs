@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.Enums;
@@ -109,22 +109,22 @@ public unsafe class CriticalHitsModule: IDisposable
         this.addToScreenLogWithScreenLogKindHook!.Original(target, source, flyTextKind, option, actionKind, actionId, val1, val2, damageType);
     }
     
-    private static bool IsPlayer(Character* source) => source->GameObject.ObjectID == Service.ClientState.LocalPlayer?.ObjectId;
+    private static bool IsPlayer(Character* source) => source->GameObject.GetGameObjectId() == Service.ClientState.LocalPlayer?.GameObjectId;
 
     private static bool IsPlayerPet(Character* source) => source->GameObject.SubKind == (int)BattleNpcSubKind.Pet &&
-                                                          source->CompanionOwnerID ==
-                                                          Service.ClientState.LocalPlayer?.ObjectId;
+                                                          source->CompanionOwnerId ==
+                                                          Service.ClientState.LocalPlayer?.GameObjectId;
     
     private static bool IsOtherPlayerPet(Character* source) =>
         source->GameObject.SubKind == (int)BattleNpcSubKind.Pet &&
-        source->CompanionOwnerID != Service.ClientState.LocalPlayer?.ObjectId;
+        source->CompanionOwnerId != Service.ClientState.LocalPlayer?.GameObjectId;
 
     private static bool IsOwnerScholar(Character* source)
     {
-        var owner = source->CompanionOwnerID == Service.ClientState.LocalPlayer?.ObjectId ?
+        var owner = source->CompanionOwnerId == Service.ClientState.LocalPlayer?.GameObjectId ?
                         Service.ClientState.LocalPlayer :
-                        Service.PartyList.FirstOrDefault(pm => pm.ObjectId == source->CompanionOwnerID)?.GameObject;
-        return (owner as BattleChara)?.ClassJob.Id ==
+                        Service.PartyList.FirstOrDefault(pm => pm.ObjectId == source->CompanionOwnerId)?.GameObject;
+        return (owner as IBattleChara)?.ClassJob.Id ==
                Constants.CombatJobs.FirstOrDefault(kv => kv.Value.Abbreviation == "SCH").Key;
     }
 

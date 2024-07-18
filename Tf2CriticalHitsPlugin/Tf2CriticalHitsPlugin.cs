@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -40,7 +40,7 @@ namespace Tf2CriticalHitsPlugin
         private static string BackupsFolderName = "backups";
         private static readonly Regex BackupFileNameFormat = new Regex(Regex.Escape(Path.Combine(BackupsFolder, Path.GetFileNameWithoutExtension(Service.PluginInterface.ConfigFile.Name))) + @"\.(\d+)\.json");
 
-        public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
+        public Tf2CriticalHitsPlugin(IDalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<Service>();
             KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
