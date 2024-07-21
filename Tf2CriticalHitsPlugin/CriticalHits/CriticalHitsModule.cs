@@ -90,10 +90,8 @@ public unsafe class CriticalHitsModule: IDisposable
                 {
                     myHeal = val1;
                 }
-            } else if (!IsPlayer(source))
-            {
-                otherPlayerHeal = val1;
-            } else if (IsOtherPlayerPet(source))
+            }
+            else if (IsOtherPlayerPet(source))
             {
                 if (IsOwnerScholar(source))
                 {
@@ -104,7 +102,11 @@ public unsafe class CriticalHitsModule: IDisposable
                     otherPlayerHeal = val1;
                 }
             }
-            
+            else if (!IsPlayer(source))
+            {
+                otherPlayerHeal = val1;
+            }
+
         }
         
         this.addToScreenLogWithScreenLogKindHook!.Original(target, source, flyTextKind, option, actionKind, actionId, val1, val2, damageType);
