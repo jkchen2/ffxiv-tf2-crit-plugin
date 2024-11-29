@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -6,7 +6,7 @@ using System.Linq;
 using KamiLib;
 using KamiLib.ChatCommands;
 using KamiLib.Configuration;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.Common.Configuration;
 using Tf2CriticalHitsPlugin.Configuration;

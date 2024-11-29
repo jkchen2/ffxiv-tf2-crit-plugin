@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Lumina.Excel.GeneratedSheets;
-using Action = Lumina.Excel.GeneratedSheets.Action;
+using Lumina.Excel.Sheets;
+using Action = Lumina.Excel.Sheets.Action;
 
 namespace Tf2CriticalHitsPlugin;
 
@@ -35,11 +35,11 @@ public abstract class Constants
         var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
         if (classJobSheet == null) throw new ApplicationException("ClassJob sheet unavailable!");
         var jobList = new List<ClassJob>();
-        for (var i = 0u; i < classJobSheet.RowCount; i++)
+        for (var i = 0u; i < classJobSheet.Count; i++)
         {
-            var classJob = classJobSheet.GetRow(i);
-            if (classJob is null || classJob.JobIndex is 0) continue;
-            jobList.Add(classJob);
+            var classJob = classJobSheet.GetRowOrDefault(i);
+            if (classJob is null || classJob.Value.JobIndex is 0) continue;
+            jobList.Add(classJob.Value);
         }
 
         return jobList.ToImmutableSortedDictionary(j => j.RowId, j => j);
@@ -53,12 +53,12 @@ public abstract class Constants
         if (actionSheet is null) throw new ApplicationException("Action sheet unavailable!");
         foreach (var action in actionSheet)
         {
-            if (!result.ContainsKey(action.ClassJob.Row))
+            if (!result.ContainsKey(action.ClassJob.RowId))
             {
-                result[action.ClassJob.Row] = new HashSet<string>();
+                result[action.ClassJob.RowId] = new HashSet<string>();
             }
 
-            result[action.ClassJob.Row].Add(action.Name.RawString);
+            result[action.ClassJob.RowId].Add(action.Name.ExtractText());
         }
 
         var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
@@ -67,7 +67,6 @@ public abstract class Constants
         // (for when your White Mage *insists* on using Cure I)
         foreach (var classJob in classJobSheet!)
         {
-            if (classJob.ClassJobParent.Value is null) continue;
             if (classJob.ClassJobParent.Value.RowId != classJob.RowId)
             {
                 foreach (var parentAction in result[classJob.ClassJobParent.Value.RowId])
@@ -82,23 +81,23 @@ public abstract class Constants
         }
         
         // Second Wind special case 🌈
-        var secondWind = actionSheet.GetRow(57);
+        var secondWind = actionSheet.GetRowOrDefault(57);
         if (secondWind is not null)
         {
             foreach (var classJob in classJobSheet.Where(c => c.Role is 2 or 3))
             {
-                result[classJob.RowId].Add(secondWind.Name.RawString);
+                result[classJob.RowId].Add(secondWind.Value.Name.ExtractText());
             }
         }
         
         // Bloodbath super special case 🌈
-        var bloodbath = actionSheet.GetRow(34);
+        var bloodbath = actionSheet.GetRowOrDefault(34);
         if (bloodbath is not null)
         {
             // Role 3 includes magical DPS, but eh
             foreach (var classJob in classJobSheet.Where(c => c.Role is 3))
             {
-                result[classJob.RowId].Add(bloodbath.Name.RawString);
+                result[classJob.RowId].Add(bloodbath.Value.Name.ExtractText());
             }
         }
 

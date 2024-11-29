@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.ImGuiFileDialog;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib;
 using KamiLib.Interfaces;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.Windows;
@@ -51,13 +52,13 @@ public class CritTab: SoundConfigurationTab<CriticalHitsConfigOne>
             var colorSheet = Service.DataManager.GetExcelSheet<UIColor>();
             if (colorSheet != null)
             {
-                for (var i = 0u; i < colorSheet.RowCount; i++)
+                for (var i = 0u; i < colorSheet.Count; i++)
                 {
-                    var row = colorSheet.GetRow(i);
+                    var row = colorSheet.GetRowOrDefault(i);
                     if (row != null)
                     {
-                        ForegroundColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.UIForeground));
-                        GlowColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.UIGlow));
+                        ForegroundColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.Value.UIForeground));
+                        GlowColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.Value.UIGlow));
                     }
                 }
             }

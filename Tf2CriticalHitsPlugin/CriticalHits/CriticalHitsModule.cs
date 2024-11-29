@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.Enums;
@@ -127,7 +128,7 @@ public unsafe class CriticalHitsModule: IDisposable
         var owner = source->CompanionOwnerId == Service.ClientState.LocalPlayer?.GameObjectId ?
                         Service.ClientState.LocalPlayer :
                         Service.PartyList.FirstOrDefault(pm => pm.ObjectId == source->CompanionOwnerId)?.GameObject;
-        return (owner as IBattleChara)?.ClassJob.Id ==
+        return (owner as IBattleChara)?.ClassJob.Value.JobIndex ==
                Constants.CombatJobs.FirstOrDefault(kv => kv.Value.Abbreviation == "SCH").Key;
     }
 
@@ -196,7 +197,7 @@ public unsafe class CriticalHitsModule: IDisposable
                         }
                         else
                         {
-                            UIModule.PlaySound((uint)module.GameSound.Value);
+                            UIGlobals.PlaySoundEffect((uint)module.GameSound.Value);
                         }
                     }
                     break;

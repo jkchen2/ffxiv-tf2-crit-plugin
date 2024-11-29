@@ -12,7 +12,7 @@ using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
@@ -38,11 +38,11 @@ public class CritOption : ISelectable, IDrawable
     public void DrawLabel()
     {
         ImGui.PushStyleColor(ImGuiCol.Text, GetJobColor(JobConfig.GetClassJob()));
-        ImGui.Text(JobConfig.GetClassJob().NameEnglish);
+        ImGui.Text(JobConfig.GetClassJob().NameEnglish.ExtractText());
         ImGui.PopStyleColor();
     }
 
-    public string ID => JobConfig.GetClassJob().Abbreviation;
+    public string ID => JobConfig.GetClassJob().Abbreviation.ExtractText();
 
     public void Draw()
     {
@@ -86,7 +86,7 @@ public class CritOption : ISelectable, IDrawable
                .AddConfigCombo(SoundsExtensions.Values(), config.GameSound, s => s.ToName(), width: 7.5F * ImGui.GetFontSize())
                .SameLine()
                .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play,
-                              () => UIModule.PlaySound((uint)config.GameSound.Value))
+                              () => UIGlobals.PlaySoundEffect((uint)config.GameSound.Value))
                .SameLine()
                .AddString("(Volume is controlled by the game's settings)")
                .AddIndent(-2)
