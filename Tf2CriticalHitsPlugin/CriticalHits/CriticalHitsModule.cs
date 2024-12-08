@@ -57,8 +57,23 @@ public unsafe class CriticalHitsModule: IDisposable
             // ignored
         }
 
+        // Really dumb way to preload all of the sounds to prevent hitches in gameplay. Just play each sound at 0% volume when the plugin loads.
+        var cachedPaths = new List<string>();
+        foreach (var jobConfig in config.JobConfigurations.Values)
+        {
+            foreach (var module in CriticalHitsConfigOne.GetModules(jobConfig))
+            {
+                if (module.UseCustomFile && !cachedPaths.Contains(module.FilePath.Value))
+                {
+                    Service.PluginLog.Debug("Preloading " + module.FilePath.Value);
+                    cachedPaths.Add(module.FilePath.Value);
+                    SoundEngine.PlaySound(module.FilePath.Value, false, 0);
+                }
+            }
+        }
+
     }
-    
+
 
     private void AddToScreenLogWithScreenLogKindDetour(
         Character* target,
