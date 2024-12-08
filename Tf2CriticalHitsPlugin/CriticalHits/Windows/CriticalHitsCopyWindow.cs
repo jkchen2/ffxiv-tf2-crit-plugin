@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Logging;
 using ImGuiNET;
 using KamiLib;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using static Tf2CriticalHitsPlugin.Tf2CriticalHitsPlugin;

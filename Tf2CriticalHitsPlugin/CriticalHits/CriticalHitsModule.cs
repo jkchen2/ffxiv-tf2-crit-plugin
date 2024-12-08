@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.Enums;
@@ -56,8 +57,23 @@ public unsafe class CriticalHitsModule: IDisposable
             // ignored
         }
 
+        // Really dumb way to preload all of the sounds to prevent hitches in gameplay. Just play each sound at 0% volume when the plugin loads.
+        var cachedPaths = new List<string>();
+        foreach (var jobConfig in config.JobConfigurations.Values)
+        {
+            foreach (var module in CriticalHitsConfigOne.GetModules(jobConfig))
+            {
+                if (module.UseCustomFile && !cachedPaths.Contains(module.FilePath.Value))
+                {
+                    Service.PluginLog.Debug("Preloading " + module.FilePath.Value);
+                    cachedPaths.Add(module.FilePath.Value);
+                    SoundEngine.PlaySound(module.FilePath.Value, false, 0);
+                }
+            }
+        }
+
     }
-    
+
 
     private void AddToScreenLogWithScreenLogKindDetour(
         Character* target,
@@ -127,7 +143,7 @@ public unsafe class CriticalHitsModule: IDisposable
         var owner = source->CompanionOwnerId == Service.ClientState.LocalPlayer?.GameObjectId ?
                         Service.ClientState.LocalPlayer :
                         Service.PartyList.FirstOrDefault(pm => pm.ObjectId == source->CompanionOwnerId)?.GameObject;
-        return (owner as IBattleChara)?.ClassJob.Id ==
+        return (owner as IBattleChara)?.ClassJob.Value.JobIndex ==
                Constants.CombatJobs.FirstOrDefault(kv => kv.Value.Abbreviation == "SCH").Key;
     }
 
@@ -196,7 +212,7 @@ public unsafe class CriticalHitsModule: IDisposable
                         }
                         else
                         {
-                            UIModule.PlaySound((uint)module.GameSound.Value);
+                            UIGlobals.PlaySoundEffect((uint)module.GameSound.Value);
                         }
                     }
                     break;
