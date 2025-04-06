@@ -57,8 +57,8 @@ public class CritTab: SoundConfigurationTab<CriticalHitsConfigOne>
                     var row = colorSheet.GetRowOrDefault(i);
                     if (row != null)
                     {
-                        ForegroundColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.Value.UIForeground));
-                        GlowColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.Value.UIGlow));
+                        ForegroundColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.Value.Dark));
+                        GlowColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.Value.Light));
                     }
                 }
             }

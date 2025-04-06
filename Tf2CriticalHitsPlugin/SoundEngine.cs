@@ -49,7 +49,15 @@ public static class SoundEngine
             WaveStream reader;
             try
             {
-                reader = new MediaFoundationReader(path);
+                if (path.EndsWith(".wav"))
+                {
+                    reader = new WaveFileReader(path);
+                }
+                else
+                {
+                    reader = new MediaFoundationReader(path);
+                }
+
             }
             catch (Exception e)
             {
