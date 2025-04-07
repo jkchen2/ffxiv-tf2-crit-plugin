@@ -49,26 +49,22 @@ public static class SoundEngine
             WaveStream reader;
             try
             {
-                if (path.EndsWith(".wav"))
+                if (Util.IsWine() && path.EndsWith(".wav"))
                 {
+                    Service.PluginLog.Debug($"On Linux, reading .wav: {path}");
                     reader = new WaveFileReader(path);
                 }
                 else
                 {
+                    Service.PluginLog.Debug($"Reading file regularly: {path}");
                     reader = new MediaFoundationReader(path);
                 }
-
             }
             catch (Exception e)
             {
                 Service.PluginLog.Error(e.Message);
                 return;
             }
-            using var channel = new WaveChannel32(reader)
-            {
-                Volume = GetVolume(volume, useGameSfxVolume),
-                PadWithZeroes = false,
-            };
 
             using (reader)
             {
@@ -76,6 +72,11 @@ public static class SoundEngine
 
                 try
                 {
+                    using var channel = new WaveChannel32(reader)
+                    {
+                        Volume = GetVolume(volume, useGameSfxVolume),
+                        PadWithZeroes = false,
+                    };
                     output.Init(channel);
                     output.Play();
                     if (id is not null)
