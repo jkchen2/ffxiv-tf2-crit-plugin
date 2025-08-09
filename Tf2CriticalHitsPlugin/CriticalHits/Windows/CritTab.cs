@@ -5,7 +5,7 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib;
 using KamiLib.Interfaces;
 using Lumina.Excel.Sheets;

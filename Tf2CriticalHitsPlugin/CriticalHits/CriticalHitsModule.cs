@@ -19,7 +19,7 @@ namespace Tf2CriticalHitsPlugin.CriticalHits;
 public unsafe class CriticalHitsModule: IDisposable
 {
     private readonly CriticalHitsConfigOne config;
-    internal static PlaySound? GameSoundPlayer;
+    //internal static PlaySound? GameSoundPlayer;
     private int myHeal;
     private int myPetHeal;
     private int otherPlayerHeal;
@@ -42,7 +42,7 @@ public unsafe class CriticalHitsModule: IDisposable
     public CriticalHitsModule(CriticalHitsConfigOne config)
     {
         this.config = config;
-        GameSoundPlayer = new PlaySound(Service.SigScanner);
+        //GameSoundPlayer = new PlaySound(Service.SigScanner);
 
         Service.FlyTextGui.FlyTextCreated += this.FlyTextCreate;
 

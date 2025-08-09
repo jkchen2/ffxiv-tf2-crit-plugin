@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.Windows;

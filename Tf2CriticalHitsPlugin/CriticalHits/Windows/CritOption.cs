@@ -7,7 +7,7 @@ using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Logging;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;

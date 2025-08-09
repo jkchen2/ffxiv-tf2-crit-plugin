@@ -1,5 +1,5 @@
 ﻿using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Configuration;
 

@@ -1,6 +1,6 @@
 ﻿using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;

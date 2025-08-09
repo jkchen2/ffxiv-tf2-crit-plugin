@@ -4,7 +4,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib.ChatCommands;
 using KamiLib.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;

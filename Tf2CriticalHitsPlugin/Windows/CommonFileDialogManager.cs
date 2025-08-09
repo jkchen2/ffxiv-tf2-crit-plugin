@@ -1,7 +1,7 @@
 using System;
 using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace Tf2CriticalHitsPlugin.Windows;
 

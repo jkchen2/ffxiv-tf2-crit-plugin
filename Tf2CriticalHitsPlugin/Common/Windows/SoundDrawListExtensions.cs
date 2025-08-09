@@ -4,7 +4,7 @@ using System.IO;
 using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
