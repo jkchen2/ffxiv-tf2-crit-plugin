@@ -1,4 +1,4 @@
-using Dalamud.Game;
+using Dalamud.Plugin.Services;
 using Tf2CriticalHitsPlugin.Game.SFX;
 
 namespace Tf2CriticalHitsPlugin.SeFunctions
