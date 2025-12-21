@@ -16,7 +16,7 @@ using Character = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits;
 
-public unsafe class CriticalHitsModule: IDisposable
+public unsafe class CriticalHitsModule : IDisposable
 {
     private readonly CriticalHitsConfigOne config;
     //internal static PlaySound? GameSoundPlayer;
@@ -36,10 +36,10 @@ public unsafe class CriticalHitsModule: IDisposable
         int val1,
         int val2,
         byte damageType);
+
     private readonly Hook<AddToScreenLogWithScreenLogKindDelegate>? addToScreenLogWithScreenLogKindHook;
 
-    // Helper to avoid using obsolete ClientState.LocalPlayer and keep comparisons consistent.
-    // CompanionOwnerId / GetGameObjectId() are uint IDs, so use ObjectTable.LocalPlayer.EntityId.
+    // Helper to avoid obsolete ClientState.LocalPlayer
     private static uint? LocalEntityId => Service.ObjectTable.LocalPlayer?.EntityId;
 
     public CriticalHitsModule(CriticalHitsConfigOne config)
@@ -49,11 +49,14 @@ public unsafe class CriticalHitsModule: IDisposable
 
         Service.FlyTextGui.FlyTextCreated += this.FlyTextCreate;
 
-        try {
+        try
+        {
             var addToScreenLogWithScreenLogKindAddress = Service.SigScanner.ScanText("E8 ?? ?? ?? ?? BF ?? ?? ?? ?? EB 39");
-            this.addToScreenLogWithScreenLogKindHook = Service.GameInteropProvider.HookFromAddress<AddToScreenLogWithScreenLogKindDelegate>(addToScreenLogWithScreenLogKindAddress, this.AddToScreenLogWithScreenLogKindDetour);
+            this.addToScreenLogWithScreenLogKindHook =
+                Service.GameInteropProvider.HookFromAddress<AddToScreenLogWithScreenLogKindDelegate>(
+                    addToScreenLogWithScreenLogKindAddress,
+                    this.AddToScreenLogWithScreenLogKindDetour);
             this.addToScreenLogWithScreenLogKindHook.Enable();
-
         }
         catch (Exception)
         {
@@ -74,15 +77,13 @@ public unsafe class CriticalHitsModule: IDisposable
                 }
             }
         }
-
     }
-
 
     private void AddToScreenLogWithScreenLogKindDetour(
         Character* target,
         Character* source,
         FlyTextKind flyTextKind,
-        byte option, // 0 = DoT / 1 = % increase / 2 = blocked / 3 = parried / 4 = resisted / 5 = default
+        byte option,
         byte actionKind,
         int actionId,
         int val1,
@@ -95,6 +96,7 @@ public unsafe class CriticalHitsModule: IDisposable
             myPetHeal = -1;
             otherPlayerHeal = -1;
             otherPetHeal = -1;
+
             if (IsPlayer(source))
             {
                 myHeal = val1;
@@ -102,205 +104,166 @@ public unsafe class CriticalHitsModule: IDisposable
             if (IsPlayerPet(source))
             {
                 if (IsOwnerScholar(source))
-                {
                     myPetHeal = val1;
-                }
                 else
-                {
                     myHeal = val1;
-                }
             }
             else if (IsOtherPlayerPet(source))
             {
                 if (IsOwnerScholar(source))
-                {
                     otherPetHeal = val1;
-                }
                 else
-                {
                     otherPlayerHeal = val1;
-                }
             }
             else if (!IsPlayer(source))
             {
                 otherPlayerHeal = val1;
             }
-
         }
 
         this.addToScreenLogWithScreenLogKindHook!.Original(target, source, flyTextKind, option, actionKind, actionId, val1, val2, damageType);
     }
 
-    private static bool IsPlayer(Character* source)
-        => LocalEntityId is uint me && source->GameObject.GetGameObjectId() == me;
+    private static bool IsPlayer(Character* source) => LocalEntityId is uint me && source->GameObject.GetGameObjectId() == me;
 
-    private static bool IsPlayerPet(Character* source)
-        => LocalEntityId is uint me
-           && source->GameObject.SubKind == (int)BattleNpcSubKind.Pet
-           && source->CompanionOwnerId == me;
+    private static bool IsPlayerPet(Character* source) => LocalEntityId is uint me && source->GameObject.SubKind == (int)BattleNpcSubKind.Pet && source->CompanionOwnerId == me;
 
-    private static bool IsOtherPlayerPet(Character* source)
-        => LocalEntityId is uint me
-           && source->GameObject.SubKind == (int)BattleNpcSubKind.Pet
-           && source->CompanionOwnerId != me;
+    private static bool IsOtherPlayerPet(Character* source) => LocalEntityId is uint me && source->GameObject.SubKind == (int)BattleNpcSubKind.Pet && source->CompanionOwnerId != me;
 
     private static bool IsOwnerScholar(Character* source)
     {
         var owner = LocalEntityId is uint me && source->CompanionOwnerId == me
-                        ? Service.ObjectTable.LocalPlayer
-                        : Service.PartyList.FirstOrDefault(pm => pm.EntityId == source->CompanionOwnerId)?.GameObject;
+            ? Service.ObjectTable.LocalPlayer
+            : Service.PartyList.FirstOrDefault(pm => pm.EntityId == source->CompanionOwnerId)?.GameObject;
+
         return (owner as IBattleChara)?.ClassJob.Value.JobIndex ==
                Constants.CombatJobs.FirstOrDefault(kv => kv.Value.Abbreviation == "SCH").Key;
     }
 
     public void FlyTextCreate(
-            ref FlyTextKind kind,
-            ref int val1,
-            ref int val2,
-            ref SeString text1,
-            ref SeString text2,
-            ref uint color,
-            ref uint icon,
-            ref uint damageTypeIcon,
-            ref float yOffset,
-            ref bool handled)
+        ref FlyTextKind kind,
+        ref int val1,
+        ref int val2,
+        ref SeString text1,
+        ref SeString text2,
+        ref uint color,
+        ref uint icon,
+        ref uint damageTypeIcon,
+        ref float yOffset,
+        ref bool handled)
+    {
+        var currentText2 = text2.ToString();
+        var currentClassJobId = GetCurrentClassJobId();
+
+        if (currentText2.StartsWith("TF2TEST##"))
         {
-            var currentText2 = text2.ToString();
-            var currentClassJobId = GetCurrentClassJobId();
-            if (currentText2.StartsWith("TF2TEST##"))
+            myHeal = -1;
+            myPetHeal = 1;
+            otherPlayerHeal = 1;
+            otherPetHeal = 1;
+
+            var testFlyText = currentText2.Split("##");
+            currentClassJobId = byte.Parse(testFlyText[1]);
+
+            switch (Enum.Parse<ModuleType>(testFlyText[2]))
             {
-                myHeal = -1;
-                myPetHeal = 1;
-                otherPlayerHeal = 1;
-                otherPetHeal = 1;
-                var testFlyText = currentText2.Split("##");
-                currentClassJobId = byte.Parse(testFlyText[1]);
-                switch (Enum.Parse<ModuleType>(testFlyText[2]))
+                case ModuleType.OwnCriticalHeal: myHeal = val1; break;
+                case ModuleType.OwnFairyCriticalHeal: myPetHeal = val1; break;
+                case ModuleType.OtherCriticalHeal: otherPlayerHeal = val1; break;
+                case ModuleType.OtherFairyCriticalHeal: otherPetHeal = val1; break;
+            }
+        }
+
+        if (currentClassJobId is null) return;
+
+        var jobConfig = config.JobConfigurations[currentClassJobId.Value];
+        foreach (var module in CriticalHitsConfigOne.GetModules(jobConfig))
+        {
+            if (ShouldTriggerInCurrentMode(module) &&
+                (IsAutoAttack(module, kind) || IsEnabledAction(module, kind, text1, val1, currentClassJobId)))
+            {
+                if (module.ShowText)
+                    text2 = GenerateText(module);
+
+                var now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                if ((!module.SoundForActionsOnly || module.GetModuleDefaults().FlyTextType.Action.Contains(kind)) &&
+                    (jobConfig.TimeBetweenSounds.Value == 0 || now - lastTimeSoundPlayed > jobConfig.TimeBetweenSounds.Value))
                 {
-                    case ModuleType.OwnCriticalHeal:
-                        myHeal = val1;
-                        break;
-                    case ModuleType.OwnFairyCriticalHeal:
-                        myPetHeal = val1;
-                        break;
-                    case ModuleType.OtherCriticalHeal:
-                        otherPlayerHeal = val1;
-                        break;
-                    case ModuleType.OtherFairyCriticalHeal:
-                        otherPetHeal = val1;
-                        break;
+                    lastTimeSoundPlayed = now;
+                    if (module.UseCustomFile)
+                        SoundEngine.PlaySound(module.FilePath.Value, module.ApplySfxVolume, module.Volume.Value);
+                    else
+                        UIGlobals.PlaySoundEffect((uint)module.GameSound.Value);
                 }
-            }
-            if (currentClassJobId is null) return;
-
-            var jobConfig = config.JobConfigurations[currentClassJobId.Value];
-            foreach (var module in CriticalHitsConfigOne.GetModules(jobConfig))
-            {
-                if (ShouldTriggerInCurrentMode(module) &&
-                    (IsAutoAttack(module, kind) ||
-                     IsEnabledAction(module, kind, text1, val1, currentClassJobId)))
-                {
-                    if (module.ShowText)
-                    {
-                        text2 = GenerateText(module);
-                    }
-
-                    var now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                    if ((!module.SoundForActionsOnly ||
-                         module.GetModuleDefaults().FlyTextType.Action.Contains(kind)) &&
-                        (jobConfig.TimeBetweenSounds.Value == 0 ||
-                        now - lastTimeSoundPlayed > jobConfig.TimeBetweenSounds.Value))
-                    {
-                        lastTimeSoundPlayed = now;
-                        if (module.UseCustomFile)
-                        {
-                            SoundEngine.PlaySound(module.FilePath.Value, module.ApplySfxVolume, module.Volume.Value);
-                        }
-                        else
-                        {
-                            UIGlobals.PlaySoundEffect((uint)module.GameSound.Value);
-                        }
-                    }
-                    break;
-                }
+                break;
             }
         }
+    }
 
-        private static bool ShouldTriggerInCurrentMode(CriticalHitsConfigOne.ConfigModule config)
+    private static bool ShouldTriggerInCurrentMode(CriticalHitsConfigOne.ConfigModule config) => !IsPvP() || config.ApplyInPvP;
+
+    private static bool IsAutoAttack(CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind) => config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
+
+    private bool IsEnabledAction(CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind, SeString text, int val, [DisallowNull] byte? currentClassJobId)
+    {
+        if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
+
+        return config.ModuleType.Value switch
         {
-            return !IsPvP() || config.ApplyInPvP;
-        }
+            ModuleType.OwnCriticalHeal => myHeal == val,
+            ModuleType.OwnFairyCriticalHeal => myPetHeal == val,
+            ModuleType.OtherCriticalHeal => otherPlayerHeal == val,
+            ModuleType.OtherFairyCriticalHeal => otherPetHeal == val,
+            _ => true
+        };
+    }
 
-        private static bool IsAutoAttack(CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind)
-        {
-            return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
-        }
+    private static byte? GetCurrentClassJobId()
+    {
+        var classJobId = PlayerState.Instance()->CurrentClassJobId;
+        return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
+    }
 
-        private bool IsEnabledAction(
-            CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind, SeString text, int val, [DisallowNull] byte? currentClassJobId)
-        {
-            // If it's not a FlyText for an action, return false
-            if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
-            return config.ModuleType.Value switch
-            {
-                ModuleType.OwnCriticalHeal => myHeal == val,
-                ModuleType.OwnFairyCriticalHeal => myPetHeal == val,
-                ModuleType.OtherCriticalHeal => otherPlayerHeal == val,
-                ModuleType.OtherFairyCriticalHeal => otherPetHeal == val,
-                _ => true
-            };
+    private static bool IsPvP() => Service.ClientState.IsPvP;
 
-            // If it's any other configuration section, it's enabled.
-        }
+    public static void GenerateTestFlyText(CriticalHitsConfigOne.ConfigModule config)
+    {
+        var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
+        var text = GetTestText();
+        Service.FlyTextGui.AddFlyText(
+            kind,
+            1,
+            3333,
+            0,
+            new SeStringBuilder().AddText(text).Build(),
+            new SeStringBuilder().AddText($"TF2TEST##{config.ClassJobId}##{config.ModuleType}").Build(),
+            config.GetModuleDefaults().FlyTextColor,
+            0,
+            60012);
+    }
 
-        private static unsafe byte? GetCurrentClassJobId()
-        {
-            var classJobId = PlayerState.Instance()->CurrentClassJobId;
-            return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
-        }
+    private static string GetTestText() => Constants.TestFlavorText[(int)Math.Floor(Random.Shared.NextSingle() * Constants.TestFlavorText.Length)];
 
-        private static bool IsPvP()
-        {
-            return Service.ClientState.IsPvP;
-        }
+    private static SeString GenerateText(CriticalHitsConfigOne.ConfigModule config)
+    {
+        var sb = new SeStringBuilder()
+            .AddUiForeground(config.TextColor.Value)
+            .AddUiGlow(config.TextGlowColor.Value);
 
-        public static void GenerateTestFlyText(CriticalHitsConfigOne.ConfigModule config)
-        {
-            var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
-            var text = GetTestText();
-            Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText(text).Build(),
-                                          new SeStringBuilder().AddText($"TF2TEST##{config.ClassJobId}##{config.ModuleType}").Build(),
-                                          config.GetModuleDefaults().FlyTextColor, 0, 60012);
-        }
+        if (config.TextItalics)
+            sb.AddItalicsOn();
 
-        private static string GetTestText()
-        {
-            return Constants.TestFlavorText[(int)Math.Floor(Random.Shared.NextSingle() * Constants.TestFlavorText.Length)];
-        }
+        return sb
+            .AddText(config.Text.Value)
+            .AddItalicsOff()
+            .AddUiForegroundOff()
+            .AddUiGlowOff()
+            .Build();
+    }
 
-        private static SeString GenerateText(CriticalHitsConfigOne.ConfigModule config)
-        {
-            var stringBuilder = new SeStringBuilder()
-                                .AddUiForeground(config.TextColor.Value)
-                                .AddUiGlow(config.TextGlowColor.Value);
-            if (config.TextItalics)
-            {
-                stringBuilder.AddItalicsOn();
-            }
-
-            return stringBuilder
-                   .AddText(config.Text.Value)
-                   .AddItalicsOff()
-                   .AddUiForegroundOff()
-                   .AddUiGlowOff()
-                   .Build();
-        }
-
-
-
-        public void Dispose()
-        {
-            addToScreenLogWithScreenLogKindHook?.Dispose();
-            Service.FlyTextGui.FlyTextCreated -= FlyTextCreate;
-        }
+    public void Dispose()
+    {
+        addToScreenLogWithScreenLogKindHook?.Dispose();
+        Service.FlyTextGui.FlyTextCreated -= FlyTextCreate;
+    }
 }
