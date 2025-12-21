@@ -37,7 +37,10 @@ public unsafe class CriticalHitsModule: IDisposable
         int val2,
         byte damageType);
     private readonly Hook<AddToScreenLogWithScreenLogKindDelegate>? addToScreenLogWithScreenLogKindHook;
-    
+
+    // Helper to avoid using obsolete ClientState.LocalPlayer and keep comparisons consistent.
+    // CompanionOwnerId / GetGameObjectId() are uint IDs, so use ObjectTable.LocalPlayer.EntityId.
+    private static uint? LocalEntityId => Service.ObjectTable.LocalPlayer?.EntityId;
 
     public CriticalHitsModule(CriticalHitsConfigOne config)
     {
@@ -124,25 +127,28 @@ public unsafe class CriticalHitsModule: IDisposable
             }
 
         }
-        
+
         this.addToScreenLogWithScreenLogKindHook!.Original(target, source, flyTextKind, option, actionKind, actionId, val1, val2, damageType);
     }
-    
-    private static bool IsPlayer(Character* source) => source->GameObject.GetGameObjectId() == Service.ClientState.LocalPlayer?.GameObjectId;
 
-    private static bool IsPlayerPet(Character* source) => source->GameObject.SubKind == (int)BattleNpcSubKind.Pet &&
-                                                          source->CompanionOwnerId ==
-                                                          Service.ClientState.LocalPlayer?.GameObjectId;
-    
-    private static bool IsOtherPlayerPet(Character* source) =>
-        source->GameObject.SubKind == (int)BattleNpcSubKind.Pet &&
-        source->CompanionOwnerId != Service.ClientState.LocalPlayer?.GameObjectId;
+    private static bool IsPlayer(Character* source)
+        => LocalEntityId is uint me && source->GameObject.GetGameObjectId() == me;
+
+    private static bool IsPlayerPet(Character* source)
+        => LocalEntityId is uint me
+           && source->GameObject.SubKind == (int)BattleNpcSubKind.Pet
+           && source->CompanionOwnerId == me;
+
+    private static bool IsOtherPlayerPet(Character* source)
+        => LocalEntityId is uint me
+           && source->GameObject.SubKind == (int)BattleNpcSubKind.Pet
+           && source->CompanionOwnerId != me;
 
     private static bool IsOwnerScholar(Character* source)
     {
-        var owner = source->CompanionOwnerId == Service.ClientState.LocalPlayer?.GameObjectId ?
-                        Service.ClientState.LocalPlayer :
-                        Service.PartyList.FirstOrDefault(pm => pm.ObjectId == source->CompanionOwnerId)?.GameObject;
+        var owner = LocalEntityId is uint me && source->CompanionOwnerId == me
+                        ? Service.ObjectTable.LocalPlayer
+                        : Service.PartyList.FirstOrDefault(pm => pm.EntityId == source->CompanionOwnerId)?.GameObject;
         return (owner as IBattleChara)?.ClassJob.Value.JobIndex ==
                Constants.CombatJobs.FirstOrDefault(kv => kv.Value.Abbreviation == "SCH").Key;
     }
@@ -219,12 +225,12 @@ public unsafe class CriticalHitsModule: IDisposable
                 }
             }
         }
-        
+
         private static bool ShouldTriggerInCurrentMode(CriticalHitsConfigOne.ConfigModule config)
         {
             return !IsPvP() || config.ApplyInPvP;
         }
-        
+
         private static bool IsAutoAttack(CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind)
         {
             return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
@@ -257,7 +263,7 @@ public unsafe class CriticalHitsModule: IDisposable
         {
             return Service.ClientState.IsPvP;
         }
-        
+
         public static void GenerateTestFlyText(CriticalHitsConfigOne.ConfigModule config)
         {
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
