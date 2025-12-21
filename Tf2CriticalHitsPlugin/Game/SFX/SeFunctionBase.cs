@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
-using Dalamud.Game;
 using Dalamud.Hooking;
-using Dalamud.Logging;
+using Dalamud.Plugin.Services;
 
 namespace Tf2CriticalHitsPlugin.Game.SFX
 {
