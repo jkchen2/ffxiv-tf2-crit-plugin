@@ -96,7 +96,6 @@ namespace Tf2CriticalHitsPlugin
                 var version = versionCheck.Version;
                 var config = version switch
                 {
-                    0 => JsonSerializer.Deserialize<CriticalHitsConfigZero>(configText)?.MigrateToOne().MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
                     1 => JsonConvert.DeserializeObject<CriticalHitsConfigOne>(configText)?.MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
                     2 => JsonConvert.DeserializeObject<ConfigTwo>(configText) ?? new ConfigTwo(),
                     _ => new ConfigTwo()
