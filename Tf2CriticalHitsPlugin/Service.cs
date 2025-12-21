@@ -35,6 +35,9 @@ public class Service
     public static IClientState ClientState { get; private set; } = null!;
 
     [PluginService]
+    public static IObjectTable ObjectTable { get; private set; } = null!;
+
+    [PluginService]
     public static ICondition Condition { get; private set; } = null!;
 
     [PluginService]
