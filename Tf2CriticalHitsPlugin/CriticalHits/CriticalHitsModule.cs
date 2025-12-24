@@ -128,21 +128,21 @@ public unsafe class CriticalHitsModule: IDisposable
         this.addToScreenLogWithScreenLogKindHook!.Original(target, source, flyTextKind, option, actionKind, actionId, val1, val2, damageType);
     }
     
-    private static bool IsPlayer(Character* source) => source->GameObject.GetGameObjectId() == Service.ClientState.LocalPlayer?.GameObjectId;
+    private static bool IsPlayer(Character* source) => source->GameObject.GetGameObjectId() == Service.ObjectTable.LocalPlayer?.EntityId;
 
     private static bool IsPlayerPet(Character* source) => source->GameObject.SubKind == (int)BattleNpcSubKind.Pet &&
                                                           source->CompanionOwnerId ==
-                                                          Service.ClientState.LocalPlayer?.GameObjectId;
+                                                          Service.ObjectTable.LocalPlayer?.EntityId;
     
     private static bool IsOtherPlayerPet(Character* source) =>
         source->GameObject.SubKind == (int)BattleNpcSubKind.Pet &&
-        source->CompanionOwnerId != Service.ClientState.LocalPlayer?.GameObjectId;
+        source->CompanionOwnerId != Service.ObjectTable.LocalPlayer?.EntityId;
 
     private static bool IsOwnerScholar(Character* source)
     {
-        var owner = source->CompanionOwnerId == Service.ClientState.LocalPlayer?.GameObjectId ?
-                        Service.ClientState.LocalPlayer :
-                        Service.PartyList.FirstOrDefault(pm => pm.ObjectId == source->CompanionOwnerId)?.GameObject;
+        var owner = source->CompanionOwnerId == Service.ObjectTable.LocalPlayer?.EntityId ?
+                        Service.ObjectTable.LocalPlayer :
+                        Service.PartyList.FirstOrDefault(pm => pm.EntityId == source->CompanionOwnerId)?.GameObject;
         return (owner as IBattleChara)?.ClassJob.Value.JobIndex ==
                Constants.CombatJobs.FirstOrDefault(kv => kv.Value.Abbreviation == "SCH").Key;
     }
