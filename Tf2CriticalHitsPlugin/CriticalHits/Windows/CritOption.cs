@@ -68,7 +68,7 @@ public class CritOption : ISelectable, IDrawable
         }
     }
 
-    private static void DrawConfigModule(CriticalHitsConfigOne.ConfigModule config, FileDialogManager dialogManager)
+    private unsafe static void DrawConfigModule(CriticalHitsConfigOne.ConfigModule config, FileDialogManager dialogManager)
     {
         InfoBox.Instance.AddTitle(config.GetModuleDefaults().SectionLabel)
                .StartConditional(config.GetModuleDefaults().SectionNote is not null)

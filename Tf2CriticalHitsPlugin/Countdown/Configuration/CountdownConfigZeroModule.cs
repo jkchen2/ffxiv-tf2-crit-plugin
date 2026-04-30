@@ -45,7 +45,7 @@ public class CountdownConfigZeroModule
         return MinimumCountdownTimer.Value <= countdownValue && MaximumCountdownTimer.Value >= countdownValue;
     }
     
-    public bool ValidForTerritory(ushort territoryId)
+    public bool ValidForTerritory(uint territoryId)
     {
         return AllTerritories || (TerritoryFilterType.Value == ZoneFilterTypeId.Whitelist &&
                                   TerritoryList.Value.Contains(territoryId))

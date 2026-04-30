@@ -84,7 +84,8 @@ public abstract class Constants
         var secondWind = actionSheet.GetRowOrDefault(57);
         if (secondWind is not null)
         {
-            foreach (var classJob in classJobSheet.Where(c => c.Role is 2 or 3))
+            // Ignore beastmaster (43)
+            foreach (var classJob in classJobSheet.Where(c => c.Role is 2 or 3 && c.RowId != 43))
             {
                 result[classJob.RowId].Add(secondWind.Value.Name.ExtractText());
             }
